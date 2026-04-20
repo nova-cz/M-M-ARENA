@@ -1,0 +1,8 @@
+{
+  "name": "M&M Fitness Arena",
+  "description": "A high-end, athletic-premium fitness tracking platform for couples to track workouts, earn points, and compete with a sophisticated Nike Lab-inspired aesthetic.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}
