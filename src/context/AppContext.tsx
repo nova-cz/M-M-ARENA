@@ -181,21 +181,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     // Update user total and weekly points
     const { data: currentUser } = await supabase.from('users').select('*').eq('id', userProfile.id).single();
+    let finalPointsAdded = data.totalPoints;
+
     if (currentUser) {
       const today = new Date().toISOString().split('T')[0];
       const lastDate = currentUser.lastWorkoutDate?.split('T')[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
       let newStreak = currentUser.streakCount || 0;
+
       if (lastDate === yesterday) {
         newStreak += 1;
       } else if (lastDate !== today) {
         newStreak = 1;
       }
 
+      // Apply 20 pts bonus if they complete a multiple of 6 days
+      if (lastDate !== today && newStreak > 0 && newStreak % 6 === 0) {
+        finalPointsAdded += 20;
+      }
+
       const { error: userUpdateError } = await supabase.from('users').update({
-        totalPoints: (currentUser.totalPoints || 0) + data.totalPoints,
-        weeklyPoints: (currentUser.weeklyPoints || 0) + data.totalPoints,
+        totalPoints: (currentUser.totalPoints || 0) + finalPointsAdded,
+        weeklyPoints: (currentUser.weeklyPoints || 0) + finalPointsAdded,
         lastWorkoutDate: new Date().toISOString(),
         streakCount: newStreak
       }).eq('id', userProfile.id);
@@ -209,7 +217,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (latestArena && latestArena.participants) {
         const updatedParticipants = latestArena.participants.map((p: any) =>
           p.userId === userProfile.id
-            ? { ...p, currentPoints: (p.currentPoints || 0) + data.totalPoints }
+            ? { ...p, currentPoints: (p.currentPoints || 0) + finalPointsAdded }
             : p
         );
         return supabase.from('arenas').update({ participants: updatedParticipants }).eq('id', arena.id);

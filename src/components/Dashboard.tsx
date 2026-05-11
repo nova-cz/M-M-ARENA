@@ -130,18 +130,22 @@ export default function Dashboard() {
           <h3 className="text-sm font-bold tracking-widest text-muted-foreground flex items-center gap-2">
             <Flame size={14} className="text-volt" /> CONSISTENCY STREAK
           </h3>
-          <div className="text-2xl font-heading italic">{streak}/6 DAYS</div>
+          <div className="text-2xl font-heading italic">{streak === 0 ? 0 : ((streak - 1) % 6) + 1}/6 DAYS</div>
         </div>
         <div className="flex justify-between gap-2">
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className={`h-3 flex-1 border ${i < streak ? 'bg-volt border-volt' : 'bg-transparent border-border'}`}
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: i * 0.1 }}
-            />
-          ))}
+          {[...Array(6)].map((_, i) => {
+            const currentCycleDays = streak === 0 ? 0 : ((streak - 1) % 6) + 1;
+            const isFilled = i < currentCycleDays;
+            return (
+              <motion.div
+                key={i}
+                className={`h-3 flex-1 border ${isFilled ? 'bg-volt border-volt' : 'bg-transparent border-border'}`}
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              />
+            );
+          })}
         </div>
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
           Complete 6 days for a +20 PTS bonus
