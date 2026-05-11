@@ -314,6 +314,7 @@ export default function ArenaDetail() {
                             <span className="text-xs font-black text-jet shrink-0">
                               +{w.totalPoints} PTS
                             </span>
+                          </div>
                         </div>
                       ))}
                     </div>
