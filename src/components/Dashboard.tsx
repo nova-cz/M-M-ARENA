@@ -64,7 +64,8 @@ export default function Dashboard() {
               return (
                 <motion.div
                   key={p.userId}
-                  className="absolute top-0 flex flex-col items-center -translate-x-1/2 z-10"
+                  className="absolute top-0 flex flex-col items-center -translate-x-1/2"
+                  style={{ zIndex: 10 + p.currentPoints }}
                   initial={{ left: 0 }}
                   animate={{ left: `${progress}%` }}
                   transition={{ duration: 1.2, delay: i * 0.2, ease: 'easeOut' }}
