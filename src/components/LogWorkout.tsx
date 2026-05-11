@@ -257,7 +257,7 @@ export default function LogWorkout() {
 
         {/* Proof Area */}
         <div className="space-y-2">
-          <Label className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">PROOF OF EFFORT</Label>
+          <Label className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">PROOF OF EFFORT (OPTIONAL)</Label>
           <div className="grid grid-cols-2 gap-2">
             <div
               onClick={startCamera}
