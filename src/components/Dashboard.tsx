@@ -52,39 +52,11 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="text-right">
-              <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">GOAL</span>
-              <div className="text-lg font-heading">{goalPoints}</div>
+              <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">ARENA DURATION</span>
+              <div className="text-[10px] font-heading mt-1 text-jet tracking-widest">
+                {new Date(arena.createdAt).toLocaleDateString()} - {new Date(arena.deadline).toLocaleDateString()}
+              </div>
             </div>
-          </div>
-
-          <div className="relative pt-6 pb-2">
-            <div className="h-[2px] bg-border w-full absolute top-1/2 -translate-y-1/2" />
-            {arena.participants.map((p, i) => {
-              const progress = Math.min((p.currentPoints / goalPoints) * 100, 100);
-              return (
-                <motion.div
-                  key={p.userId}
-                  className="absolute top-0 flex flex-col items-center -translate-x-1/2"
-                  style={{ zIndex: 10 + p.currentPoints }}
-                  initial={{ left: 0 }}
-                  animate={{ left: `${progress}%` }}
-                  transition={{ duration: 1.2, delay: i * 0.2, ease: 'easeOut' }}
-                >
-                  <div
-                    className="w-8 h-8 flex items-center justify-center font-heading text-xs border-2"
-                    style={{
-                      backgroundColor: p.color === '#D3FF33' ? '#000000' : p.color,
-                      color: p.color === '#D3FF33' ? p.color : '#000000',
-                      borderColor: p.color,
-                    }}
-                  >
-                    {p.userName[0]}
-                  </div>
-                  <div className="w-[2px] h-1 bg-jet mt-0.5" />
-                </motion.div>
-              );
-            })}
-            <div className="h-full w-full py-4" />
           </div>
         </section>
       ) : (
