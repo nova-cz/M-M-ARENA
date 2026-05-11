@@ -148,21 +148,6 @@ export default function Dashboard() {
         </p>
       </section>
 
-      {/* Log FAB */}
-      <div className="fixed bottom-28 left-0 right-0 pointer-events-none z-50 flex justify-center">
-        <div className="w-full md:max-w-4xl lg:max-w-6xl relative pointer-events-none">
-          <div className="absolute right-6 bottom-0 pointer-events-auto">
-            <Button
-              size="icon"
-              className="w-16 h-16 rounded-none bg-volt text-jet hover:bg-volt/90 shadow-xl"
-              onClick={() => navigate('/log')}
-            >
-              <Plus size={32} />
-            </Button>
-          </div>
-        </div>
-      </div>
-
       {/* Motivation Card */}
       <Card className="border-2 border-jet rounded-none overflow-hidden">
         <div className="bg-jet text-volt p-2 text-[10px] font-bold tracking-widest text-center">

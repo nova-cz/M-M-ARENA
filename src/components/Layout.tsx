@@ -1,11 +1,13 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { Home, ClipboardList, TrendingUp, User, Trophy } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Home, ClipboardList, TrendingUp, User, Trophy, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
+import { Button } from '@/components/ui/button';
 
 export default function Layout() {
   const { firebaseUser } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background flex flex-col mx-auto relative shadow-2xl border-x w-full md:max-w-4xl lg:max-w-6xl">
@@ -34,6 +36,21 @@ export default function Layout() {
           </div>
         </footer>
       </main>
+
+      {/* Log FAB */}
+      <div className="fixed bottom-28 left-0 right-0 pointer-events-none z-50 flex justify-center">
+        <div className="w-full md:max-w-4xl lg:max-w-6xl relative pointer-events-none">
+          <div className="absolute right-6 bottom-0 pointer-events-auto">
+            <Button
+              size="icon"
+              className="w-16 h-16 rounded-none bg-volt text-jet hover:bg-volt/90 shadow-xl"
+              onClick={() => navigate('/log')}
+            >
+              <Plus size={32} />
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* Navigation Bar */}
       <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full md:max-w-4xl lg:max-w-6xl bg-background border-t p-4 flex justify-around items-center z-30">
