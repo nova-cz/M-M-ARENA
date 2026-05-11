@@ -40,7 +40,6 @@ export default function Layout() {
         <NavButton to="/" icon={<Home size={20} />} label="Home" />
         <NavButton to="/history" icon={<ClipboardList size={20} />} label="Feed" />
         <NavButton to="/challenges" icon={<Trophy size={20} />} label="Arenas" />
-        <NavButton to="/stats" icon={<TrendingUp size={20} />} label="Stats" />
         <NavButton
           to={`/profile/${firebaseUser?.id || ''}`}
           icon={<User size={20} />}

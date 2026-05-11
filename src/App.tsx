@@ -50,7 +50,6 @@ function AppRoutes() {
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/history" element={<History />} />
-              <Route path="/stats" element={<Stats />} />
               <Route path="/challenges" element={<Challenges />} />
               <Route path="/challenges/:arenaId" element={<ArenaDetail />} />
               <Route path="/profile/:userId" element={<Profile />} />
