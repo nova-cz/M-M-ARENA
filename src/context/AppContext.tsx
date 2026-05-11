@@ -3,7 +3,7 @@ import { supabase } from '../supabase';
 import { useAuth } from './AuthContext';
 import { WorkoutEntry, Arena, UserProfile, ActivityType } from '../types';
 
-const ARENA_COLORS = ['#D3FF33', '#FFFFFF', '#FF6B6B', '#4ECDC4', '#45B7D1'];
+const ARENA_COLORS = ['#D3FF33', '#18181b', '#FF6B6B', '#4ECDC4', '#45B7D1'];
 
 interface AppContextValue {
   workouts: WorkoutEntry[];
@@ -49,48 +49,51 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const userIds = [userProfile.id];
-    if (userProfile.partnerId) userIds.push(userProfile.partnerId);
+    const fetchAll = async () => {
+      setLoadingData(true);
+      
+      const [myArenasRes, publicArenasRes, partnerRes] = await Promise.all([
+        supabase.from('arenas').select('*').contains('participantIds', [userProfile.id]),
+        supabase.from('arenas').select('*').eq('type', 'public'),
+        userProfile.partnerId ? supabase.from('users').select('*').eq('id', userProfile.partnerId).single() : Promise.resolve({ data: null })
+      ]);
+      
+      const fetchedMyArenas = (myArenasRes.data || []) as Arena[];
+      const fetchedPublicArenas = (publicArenasRes.data || []) as Arena[];
+      
+      const ids = new Set([userProfile.id]);
+      if (userProfile.partnerId) ids.add(userProfile.partnerId);
+      fetchedMyArenas.forEach(a => {
+        a.participantIds?.forEach(id => ids.add(id));
+      });
+      
+      const workoutsRes = await supabase.from('workouts').select('*').in('userId', Array.from(ids)).order('timestamp', { ascending: false });
+      
+      setWorkouts((workoutsRes.data || []) as WorkoutEntry[]);
+      setMyArenas(fetchedMyArenas);
+      setPublicArenas(fetchedPublicArenas);
+      if (partnerRes.data) setPartnerProfile(partnerRes.data as UserProfile);
+      
+      setLoadingData(false);
+    };
 
-    const fetchWorkouts = () =>
-      supabase.from('workouts').select('*').in('userId', userIds).order('timestamp', { ascending: false });
-
-    const fetchMyArenas = () =>
-      supabase.from('arenas').select('*').contains('participantIds', [userProfile.id]);
-
-    const fetchPublicArenas = () =>
-      supabase.from('arenas').select('*').eq('type', 'public');
-
-    const fetchPartner = () =>
-      userProfile.partnerId
-        ? supabase.from('users').select('*').eq('id', userProfile.partnerId).single()
-        : Promise.resolve({ data: null });
-
-    setLoadingData(true);
-    Promise.all([fetchWorkouts(), fetchMyArenas(), fetchPublicArenas(), fetchPartner()])
-      .then(([workoutsRes, myArenasRes, publicArenasRes, partnerRes]) => {
-        if (workoutsRes.data) setWorkouts(workoutsRes.data as WorkoutEntry[]);
-        if (myArenasRes.data) setMyArenas(myArenasRes.data as Arena[]);
-        if (publicArenasRes.data) setPublicArenas(publicArenasRes.data as Arena[]);
-        if (partnerRes.data) setPartnerProfile(partnerRes.data as UserProfile);
-      })
-      .finally(() => setLoadingData(false));
+    fetchAll();
 
     const workoutsChannel = supabase.channel('public:workouts')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'workouts' }, () => {
-        fetchWorkouts().then(({ data }) => { if (data) setWorkouts(data as WorkoutEntry[]); });
+        fetchAll();
       })
       .subscribe();
 
     const myArenasChannel = supabase.channel('public:arenas:my')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'arenas' }, () => {
-        fetchMyArenas().then(({ data }) => { if (data) setMyArenas(data as Arena[]); });
+        fetchAll();
       })
       .subscribe();
 
     const publicArenasChannel = supabase.channel('public:arenas:all')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'arenas', filter: 'type=eq.public' }, () => {
-        fetchPublicArenas().then(({ data }) => { if (data) setPublicArenas(data as Arena[]); });
+        fetchAll();
       })
       .subscribe();
 
@@ -199,18 +202,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (userUpdateError) throw userUpdateError;
     }
 
-    // Update arena participant points
-    if (primaryArena) {
-      const updatedParticipants = primaryArena.participants.map(p =>
-        p.userId === userProfile.id
-          ? { ...p, currentPoints: p.currentPoints + data.totalPoints }
-          : p
-      );
-      const { error: arenaError } = await supabase.from('arenas').update({ participants: updatedParticipants }).eq('id', primaryArena.id);
-      if (arenaError) throw arenaError;
-    }
+    // Update arena participant points for ALL arenas the user is in
+    const arenaPromises = myArenas.map(async (arena) => {
+      // Fetch latest arena state to prevent race conditions overwriting other users' points
+      const { data: latestArena } = await supabase.from('arenas').select('participants').eq('id', arena.id).single();
+      if (latestArena && latestArena.participants) {
+        const updatedParticipants = latestArena.participants.map((p: any) =>
+          p.userId === userProfile.id
+            ? { ...p, currentPoints: (p.currentPoints || 0) + data.totalPoints }
+            : p
+        );
+        return supabase.from('arenas').update({ participants: updatedParticipants }).eq('id', arena.id);
+      }
+    });
 
-  }, [userProfile, primaryArena]);
+    await Promise.all(arenaPromises);
+
+  }, [userProfile, primaryArena, myArenas]);
 
   const toggleKudos = useCallback(async (workoutId: string) => {
     if (!userProfile) return;

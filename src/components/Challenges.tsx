@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Users, Plus, Shield, Globe, Share2, Copy, Check } from 'lucide-react';
+import { Plus, Shield, Globe, Copy, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { Arena } from '../types';
+
+// Colors assigned by rank position — always visible, always distinct
+const RANK_COLORS = ['#D3FF33', '#FF6B35', '#4ECDC4', '#A855F7', '#F97316'];
 
 export default function Challenges() {
   const [activeTab, setActiveTab] = useState<'my' | 'discover'>('my');
@@ -65,9 +70,11 @@ export default function Challenges() {
 
 function MyArenas() {
   const { myArenas } = useApp();
+  const navigate = useNavigate();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  function copyCode(code: string, arenaId: string) {
+  function copyCode(code: string, arenaId: string, e: React.MouseEvent) {
+    e.stopPropagation();
     navigator.clipboard.writeText(code);
     setCopiedId(arenaId);
     setTimeout(() => setCopiedId(null), 2000);
@@ -88,8 +95,15 @@ function MyArenas() {
     <div className="space-y-4">
       {myArenas.map((arena) => {
         const daysLeft = Math.max(0, Math.ceil((new Date(arena.deadline).getTime() - Date.now()) / 86400000));
+        const sorted = [...arena.participants].sort((a, b) => b.currentPoints - a.currentPoints);
+        const topPoints = sorted[0]?.currentPoints || 1;
+
         return (
-          <Card key={arena.id} className="rounded-none border-2 border-jet">
+          <Card
+            key={arena.id}
+            className="rounded-none border-2 border-jet hover:border-volt transition-colors cursor-pointer text-left"
+            onClick={() => navigate(`/challenges/${arena.id}`)}
+          >
             <CardContent className="p-4 space-y-4">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
@@ -103,8 +117,8 @@ function MyArenas() {
                 </div>
                 {arena.type === 'private' && (
                   <button
-                    onClick={() => copyCode(arena.inviteCode, arena.id)}
-                    className="flex items-center gap-1 bg-paper px-2 py-1 text-[10px] font-bold tracking-widest uppercase hover:bg-volt/10 transition-colors"
+                    onClick={(e) => copyCode(arena.inviteCode, arena.id, e)}
+                    className="flex items-center gap-1 bg-paper px-2 py-1 text-[10px] font-bold tracking-widest uppercase hover:bg-volt/20 transition-colors"
                   >
                     {copiedId === arena.id ? <Check size={10} /> : <Copy size={10} />}
                     {arena.inviteCode}
@@ -112,34 +126,38 @@ function MyArenas() {
                 )}
               </div>
 
-              {/* Leaderboard mini */}
+              {/* Leaderboard mini — colores por posición, fondo oscuro para visibilidad */}
               <div className="space-y-2">
-                {arena.participants
-                  .sort((a, b) => b.currentPoints - a.currentPoints)
-                  .map((p, i) => {
-                    const pct = arena.goalPoints > 0 ? Math.min((p.currentPoints / arena.goalPoints) * 100, 100) : 100;
-                    return (
-                      <div key={p.userId} className="space-y-1">
-                        <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest">
-                          <span>{i + 1}. {p.userName}</span>
-                          <span>{p.currentPoints} PTS</span>
-                        </div>
-                        <div className="h-1.5 bg-paper border border-border">
-                          <motion.div
-                            className="h-full"
-                            style={{ backgroundColor: p.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${pct}%` }}
-                            transition={{ duration: 1 }}
-                          />
-                        </div>
+                {sorted.map((p, i) => {
+                  const currentPts = p.currentPoints || 0;
+                  const pct = arena.goalPoints > 0
+                    ? Math.min((currentPts / arena.goalPoints) * 100, 100)
+                    : Math.min((currentPts / topPoints) * 100, 100);
+                  const barColor = RANK_COLORS[i % RANK_COLORS.length];
+                  return (
+                    <div key={p.userId} className="space-y-1">
+                      <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest">
+                        <span>{i + 1}. {p.userName}</span>
+                        <span>{p.currentPoints} PTS</span>
                       </div>
-                    );
-                  })}
+                      {/* Contenedor oscuro para que cualquier color sea visible */}
+                      <div className="h-2 w-full" style={{ backgroundColor: 'rgba(0,0,0,0.10)' }}>
+                        <motion.div
+                          className="h-full"
+                          style={{ backgroundColor: barColor }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ duration: 1, ease: 'easeOut' }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="flex justify-between items-center text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
                 <span>{arena.goalPoints > 0 ? `GOAL: ${arena.goalPoints} PTS` : 'NO POINT GOAL'}</span>
+                <span className="text-volt tracking-widest">TAP TO ENTER →</span>
               </div>
             </CardContent>
           </Card>
@@ -415,3 +433,4 @@ function JoinArenaDialog() {
     </Dialog>
   );
 }
+

@@ -9,6 +9,7 @@ const LogWorkout = lazy(() => import('./components/LogWorkout'));
 const History = lazy(() => import('./components/History'));
 const Stats = lazy(() => import('./components/Stats'));
 const Challenges = lazy(() => import('./components/Challenges'));
+const ArenaDetail = lazy(() => import('./components/ArenaDetail'));
 const Profile = lazy(() => import('./components/Profile'));
 const Login = lazy(() => import('./components/Login'));
 const SetupProfile = lazy(() => import('./components/SetupProfile'));
@@ -51,6 +52,7 @@ function AppRoutes() {
               <Route path="/history" element={<History />} />
               <Route path="/stats" element={<Stats />} />
               <Route path="/challenges" element={<Challenges />} />
+              <Route path="/challenges/:arenaId" element={<ArenaDetail />} />
               <Route path="/profile/:userId" element={<Profile />} />
               <Route path="/profile" element={<Profile />} />
             </Route>

@@ -44,12 +44,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // onAuthStateChange fires INITIAL_SESSION immediately from localStorage — no extra getSession needed
+    // Check active session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const user = session?.user ?? null;
+      setFirebaseUser(user);
+      if (user) {
+        setLoading(false);
+        loadProfile(user);
+      } else {
+        setUserProfile(null);
+        setNeedsProfileSetup(false);
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth changes (login, logout, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
       setFirebaseUser(user);
       if (user) {
-        // Stop spinner immediately — profile loads in background
         setLoading(false);
         loadProfile(user);
       } else {
@@ -75,6 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function loginWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
     });
     if (error) throw error;
   }
