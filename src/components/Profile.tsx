@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Flame, Trophy, Copy, Check, LogOut, ArrowRight } from 'lucide-react';
@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
+import { supabase } from '../supabase';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -15,9 +16,30 @@ export default function Profile() {
   const { workouts, partnerProfile } = useApp();
   const [copiedCode, setCopiedCode] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+  const [fetchedProfile, setFetchedProfile] = useState<any>(null);
+
+  useEffect(() => {
+    async function loadProfile() {
+      if (!userId || userId === userProfile?.id) return;
+      if (partnerProfile && userId === partnerProfile.id) return;
+      
+      setLoading(true);
+      const { data } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (data) setFetchedProfile(data);
+      setLoading(false);
+    }
+    loadProfile();
+  }, [userId, userProfile?.id, partnerProfile]);
+
   // Determine whose profile to show
   const isOwn = !userId || userId === userProfile?.id;
-  const profile = isOwn ? userProfile : partnerProfile;
+  const profile = isOwn ? userProfile : (partnerProfile?.id === userId ? partnerProfile : fetchedProfile);
 
   const userWorkouts = workouts.filter(w => w.userId === profile?.id);
   const totalPoints = profile?.totalPoints ?? 0;
@@ -44,7 +66,7 @@ export default function Profile() {
     setTimeout(() => setCopiedCode(false), 2000);
   }
 
-  if (!profile) {
+  if (loading || !profile) {
     return (
       <div className="p-6 space-y-8">
         <header className="flex items-center gap-4">
@@ -55,7 +77,7 @@ export default function Profile() {
         </header>
         <div className="flex items-center justify-center py-24">
           <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            {isOwn ? 'Loading...' : 'Partner profile not available.'}
+            {loading ? 'Loading...' : 'Profile not available.'}
           </p>
         </div>
       </div>
