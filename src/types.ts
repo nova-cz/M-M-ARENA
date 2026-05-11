@@ -48,6 +48,7 @@ export interface Arena {
   createdBy: string;
   inviteCode: string;
   participants: ArenaParticipant[];
+  participantIds: string[];
   createdAt: string;
 }
 
