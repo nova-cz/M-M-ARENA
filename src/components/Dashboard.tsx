@@ -54,7 +54,7 @@ export default function Dashboard() {
             <div className="text-right">
               <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">ARENA DURATION</span>
               <div className="text-[10px] font-heading mt-1 text-jet tracking-widest">
-                {new Date(arena.createdAt).toLocaleDateString()} - {new Date(arena.deadline).toLocaleDateString()}
+                {new Date((arena as any).created_at || arena.createdAt || Date.now()).toLocaleDateString()} - {new Date(arena.deadline).toLocaleDateString()}
               </div>
             </div>
           </div>
