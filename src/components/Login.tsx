@@ -38,12 +38,7 @@ export default function Login() {
         await registerWithEmail(email, password);
       }
     } catch (err: any) {
-      const msg = err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password'
-        ? 'Invalid email or password.'
-        : err.code === 'auth/email-already-in-use'
-        ? 'This email is already registered.'
-        : err.message || 'Authentication failed.';
-      setError(msg);
+      setError(err.message || 'Authentication failed.');
     } finally {
       setLoading(false);
     }
