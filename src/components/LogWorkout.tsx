@@ -32,10 +32,10 @@ export default function LogWorkout() {
 
   useEffect(() => {
     let base = 0;
-    if (activity === 'Running' || activity === 'Walk') {
+    if (activity === 'Running') {
       base = POINTS_CONFIG[activity](parseFloat(distance) || 0);
-    } else if (activity === 'Swimming') {
-      base = POINTS_CONFIG.Swimming(duration);
+    } else if (activity === 'Swimming' || activity === 'Walk') {
+      base = POINTS_CONFIG[activity as 'Swimming' | 'Walk'](duration);
     } else if (activity === 'Calisthenics') {
       base = POINTS_CONFIG.Calisthenics(duration);
     } else if (activity === 'Squats') {
@@ -104,8 +104,8 @@ export default function LogWorkout() {
     setError('');
     try {
       const metadata: Record<string, any> = {};
-      if (activity === 'Running' || activity === 'Walk') metadata.distance = parseFloat(distance);
-      else if (activity === 'Swimming' || activity === 'Calisthenics') metadata.duration = duration;
+      if (activity === 'Running') metadata.distance = parseFloat(distance);
+      else if (activity === 'Swimming' || activity === 'Calisthenics' || activity === 'Walk') metadata.duration = duration;
       else if (activity === 'Squats') metadata.reps = reps;
 
       await logWorkout({
@@ -159,7 +159,7 @@ export default function LogWorkout() {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-6"
           >
-            {(activity === 'Running' || activity === 'Walk') && (
+            {activity === 'Running' && (
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">DISTANCE (KM)</Label>
                 <Input
@@ -174,7 +174,7 @@ export default function LogWorkout() {
               </div>
             )}
 
-            {(activity === 'Swimming' || activity === 'Calisthenics') && (
+            {(activity === 'Swimming' || activity === 'Calisthenics' || activity === 'Walk') && (
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">DURATION</Label>
                 <div className="grid grid-cols-2 gap-2">

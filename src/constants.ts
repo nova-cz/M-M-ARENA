@@ -10,7 +10,7 @@ export const ACTIVITIES: ActivityType[] = ['Running', 'Swimming', 'Walk', 'Calis
 export const POINTS_CONFIG = {
   Running: (distance: number) => Math.round(distance * 2), // 2 pts per km
   Swimming: (minutes: string) => minutes === '30 min' ? 15 : 7,
-  Walk: (distance: number) => Math.round(distance * 1), // 1 pt per km
+  Walk: (minutes: string) => minutes === '30 min' ? 10 : 5,
   Calisthenics: (minutes: string) => minutes === '30 min' ? 12 : 6,
   Squats: (reps: string) => reps === '50 Squats' ? 10 : 2,
 };

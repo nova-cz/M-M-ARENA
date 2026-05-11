@@ -12,10 +12,13 @@ export default function Dashboard() {
   const { userProfile } = useAuth();
   const { primaryArena, partnerProfile } = useApp();
 
+  const arenaRival = primaryArena?.participants.find(p => p.userId !== userProfile?.id);
   const myPoints = primaryArena?.participants.find(p => p.userId === userProfile?.id)?.currentPoints ?? userProfile?.totalPoints ?? 0;
+  
+  const displayRivalName = partnerProfile?.name || arenaRival?.userName;
   const partnerPoints = partnerProfile
     ? (primaryArena?.participants.find(p => p.userId === partnerProfile.id)?.currentPoints ?? partnerProfile.totalPoints ?? 0)
-    : 0;
+    : (arenaRival?.currentPoints ?? 0);
 
   const streak = userProfile?.streakCount ?? 0;
 
@@ -122,9 +125,9 @@ export default function Dashboard() {
         >
           <Card className="bg-paper border-none h-full hover:bg-paper/80 transition-colors">
             <CardContent className="p-6">
-              {partnerProfile ? (
+              {displayRivalName ? (
                 <>
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground">{partnerProfile.name}</span>
+                  <span className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground">{displayRivalName}</span>
                   <div className="text-6xl font-heading mt-2">{partnerPoints}</div>
                   <div className="text-xs text-muted-foreground uppercase mt-1">Total Points</div>
                 </>
