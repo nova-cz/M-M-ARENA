@@ -120,16 +120,19 @@ export default function Dashboard() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          onClick={() => partnerProfile && navigate(`/profile/${partnerProfile.id}`)}
-          className={partnerProfile ? 'cursor-pointer' : ''}
+          onClick={() => {
+            const rivalId = partnerProfile?.id || arenaRival?.userId;
+            if (rivalId) navigate(`/profile/${rivalId}`);
+          }}
+          className={displayRivalName ? 'cursor-pointer' : ''}
         >
-          <Card className="bg-paper border-none h-full hover:bg-paper/80 transition-colors">
+          <Card className={`border-none h-full hover:opacity-90 transition-opacity ${displayRivalName ? 'bg-[#FF6B6B] text-white' : 'bg-paper hover:bg-paper/80'}`}>
             <CardContent className="p-6">
               {displayRivalName ? (
                 <>
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-muted-foreground">{displayRivalName}</span>
+                  <span className="text-[10px] font-bold tracking-[0.2em] text-white/70">{displayRivalName}</span>
                   <div className="text-6xl font-heading mt-2">{partnerPoints}</div>
-                  <div className="text-xs text-muted-foreground uppercase mt-1">Total Points</div>
+                  <div className="text-xs text-white/70 uppercase mt-1">Total Points</div>
                 </>
               ) : (
                 <>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Shield, Globe, MessageCircle, Activity, User, Send, Trophy } from 'lucide-react';
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../supabase';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -240,6 +241,22 @@ export default function ArenaDetail() {
             transition={{ duration: 0.2 }}
             className="p-4 space-y-8"
           >
+            {/* Activity Graph */}
+            <div className="h-40 border-2 border-jet bg-paper p-4">
+              <h3 className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase mb-4 text-center">ACTIVITY GRAPH</h3>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={sorted.map((p, i) => ({ name: p.userName.split(' ')[0], pts: p.currentPoints || 0, fill: RANK_COLORS[i % RANK_COLORS.length] }))}>
+                  <XAxis dataKey="name" tick={{ fontSize: 9, fontWeight: 'bold', fill: '#18181b' }} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                    contentStyle={{ backgroundColor: '#18181b', color: '#D3FF33', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', borderRadius: '0', border: 'none' }}
+                    itemStyle={{ color: '#D3FF33' }}
+                  />
+                  <Bar dataKey="pts" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
             {sorted.map((p, i) => {
               const color = RANK_COLORS[i % RANK_COLORS.length];
               const isMe = p.userId === userProfile?.id;
@@ -297,14 +314,6 @@ export default function ArenaDetail() {
                             <span className="text-xs font-black text-jet shrink-0">
                               +{w.totalPoints} PTS
                             </span>
-                          </div>
-                          {w.proofUrl && (
-                            <img
-                              src={w.proofUrl}
-                              alt="Workout proof"
-                              className="w-full h-32 object-cover"
-                            />
-                          )}
                         </div>
                       ))}
                     </div>

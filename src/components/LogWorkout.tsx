@@ -17,6 +17,7 @@ export default function LogWorkout() {
   const [activity, setActivity] = useState<ActivityType>('Running');
   const [distance, setDistance] = useState('');
   const [duration, setDuration] = useState('15 min');
+  const [walkMinutes, setWalkMinutes] = useState('');
   const [reps, setReps] = useState('10 Squats');
   const [hasBonus, setHasBonus] = useState(false);
   const [points, setPoints] = useState(0);
@@ -34,15 +35,17 @@ export default function LogWorkout() {
     let base = 0;
     if (activity === 'Running') {
       base = POINTS_CONFIG[activity](parseFloat(distance) || 0);
-    } else if (activity === 'Swimming' || activity === 'Walk') {
-      base = POINTS_CONFIG[activity as 'Swimming' | 'Walk'](duration);
+    } else if (activity === 'Swimming') {
+      base = POINTS_CONFIG.Swimming(duration);
+    } else if (activity === 'Walk') {
+      base = POINTS_CONFIG.Walk(parseFloat(walkMinutes) || 0);
     } else if (activity === 'Calisthenics') {
       base = POINTS_CONFIG.Calisthenics(duration);
     } else if (activity === 'Squats') {
       base = POINTS_CONFIG.Squats(reps);
     }
     setPoints(base + (hasBonus ? BONUS_POINTS : 0));
-  }, [activity, distance, duration, reps, hasBonus]);
+  }, [activity, distance, duration, walkMinutes, reps, hasBonus]);
 
   async function startCamera() {
     try {
@@ -105,7 +108,8 @@ export default function LogWorkout() {
     try {
       const metadata: Record<string, any> = {};
       if (activity === 'Running') metadata.distance = parseFloat(distance);
-      else if (activity === 'Swimming' || activity === 'Calisthenics' || activity === 'Walk') metadata.duration = duration;
+      else if (activity === 'Swimming' || activity === 'Calisthenics') metadata.duration = duration;
+      else if (activity === 'Walk') metadata.duration = `${parseFloat(walkMinutes) || 0} min`;
       else if (activity === 'Squats') metadata.reps = reps;
 
       await logWorkout({
@@ -174,7 +178,7 @@ export default function LogWorkout() {
               </div>
             )}
 
-            {(activity === 'Swimming' || activity === 'Calisthenics' || activity === 'Walk') && (
+            {(activity === 'Swimming' || activity === 'Calisthenics') && (
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">DURATION</Label>
                 <div className="grid grid-cols-2 gap-2">
@@ -189,6 +193,21 @@ export default function LogWorkout() {
                     </Button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {activity === 'Walk' && (
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">DURATION (MINUTES)</Label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={walkMinutes}
+                  onChange={(e) => setWalkMinutes(e.target.value)}
+                  className="h-14 rounded-none border-2 border-jet text-2xl font-heading"
+                  min="0"
+                  step="1"
+                />
               </div>
             )}
 
