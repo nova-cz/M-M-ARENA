@@ -126,7 +126,7 @@ export default function Dashboard() {
           }}
           className={displayRivalName ? 'cursor-pointer' : ''}
         >
-          <Card className={`border-none h-full hover:opacity-90 transition-opacity ${displayRivalName ? 'bg-[#FF6B6B] text-white' : 'bg-paper hover:bg-paper/80'}`}>
+          <Card className={`border-none h-full hover:opacity-90 transition-opacity ${displayRivalName ? 'bg-[#FF6B36] text-white' : 'bg-paper hover:bg-paper/80'}`}>
             <CardContent className="p-6">
               {displayRivalName ? (
                 <>
