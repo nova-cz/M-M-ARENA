@@ -64,7 +64,7 @@ export default function Login() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-12"
       >
-        <div className="space-y-2">
+        <div className="space-y-4 flex flex-col items-center text-center">
           <img src={logo} alt="M&M Fitness Arena" className="w-64" />
           <p className="text-xs tracking-widest text-muted-foreground uppercase">Athletic Premium Performance Tracking</p>
         </div>
