@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import logo from '../img/logo.png';
 import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -64,7 +65,7 @@ export default function Login() {
         className="space-y-12"
       >
         <div className="space-y-2">
-          <h1 className="text-5xl font-heading leading-none">M&M<br />FITNESS<br />ARENA</h1>
+          <img src={logo} alt="M&M Fitness Arena" className="w-64" />
           <p className="text-xs tracking-widest text-muted-foreground uppercase">Athletic Premium Performance Tracking</p>
         </div>
 
