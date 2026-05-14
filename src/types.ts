@@ -1,4 +1,4 @@
-export type ActivityType = 'Running' | 'Swimming' | 'Walk' | 'Calisthenics' | 'Squats';
+export type ActivityType = 'Running' | 'Swimming' | 'Walk' | 'Calisthenics' | 'Squats' | 'Gym';
 
 export interface UserProfile {
   id: string;

@@ -5,7 +5,7 @@
 
 import { ActivityType } from './types';
 
-export const ACTIVITIES: ActivityType[] = ['Running', 'Swimming', 'Walk', 'Calisthenics', 'Squats'];
+export const ACTIVITIES: ActivityType[] = ['Running', 'Swimming', 'Walk', 'Calisthenics', 'Squats', 'Gym'];
 
 export const POINTS_CONFIG = {
   Running: (distance: number) => Math.round(distance * 2), // 2 pts per km
@@ -13,6 +13,7 @@ export const POINTS_CONFIG = {
   Walk: (minutes: number) => Math.round(minutes * 0.5),
   Calisthenics: (minutes: string) => minutes === '30 min' ? 12 : 6,
   Squats: (reps: string) => reps === '50 Squats' ? 10 : 2,
+  Gym: (minutes: number) => (minutes / 60) * 5,
 };
 
 export const BONUS_POINTS = 2;

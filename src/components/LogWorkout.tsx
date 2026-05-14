@@ -18,6 +18,7 @@ export default function LogWorkout() {
   const [distance, setDistance] = useState('');
   const [duration, setDuration] = useState('15 min');
   const [walkMinutes, setWalkMinutes] = useState('');
+  const [gymMinutes, setGymMinutes] = useState('');
   const [reps, setReps] = useState('10 Squats');
   const [hasBonus, setHasBonus] = useState(false);
   const [points, setPoints] = useState(0);
@@ -43,9 +44,11 @@ export default function LogWorkout() {
       base = POINTS_CONFIG.Calisthenics(duration);
     } else if (activity === 'Squats') {
       base = POINTS_CONFIG.Squats(reps);
+    } else if (activity === 'Gym') {
+      base = POINTS_CONFIG.Gym(parseFloat(gymMinutes) || 0);
     }
     setPoints(base + (hasBonus ? BONUS_POINTS : 0));
-  }, [activity, distance, duration, walkMinutes, reps, hasBonus]);
+  }, [activity, distance, duration, walkMinutes, gymMinutes, reps, hasBonus]);
 
   async function startCamera() {
     try {
@@ -110,6 +113,7 @@ export default function LogWorkout() {
       if (activity === 'Running') metadata.distance = parseFloat(distance);
       else if (activity === 'Swimming' || activity === 'Calisthenics') metadata.duration = duration;
       else if (activity === 'Walk') metadata.duration = `${parseFloat(walkMinutes) || 0} min`;
+      else if (activity === 'Gym') metadata.duration = `${parseFloat(gymMinutes) || 0} min`;
       else if (activity === 'Squats') metadata.reps = reps;
 
       await logWorkout({
@@ -196,14 +200,14 @@ export default function LogWorkout() {
               </div>
             )}
 
-            {activity === 'Walk' && (
+            {(activity === 'Walk' || activity === 'Gym') && (
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">DURATION (MINUTES)</Label>
                 <Input
                   type="number"
                   placeholder="0"
-                  value={walkMinutes}
-                  onChange={(e) => setWalkMinutes(e.target.value)}
+                  value={activity === 'Walk' ? walkMinutes : gymMinutes}
+                  onChange={(e) => activity === 'Walk' ? setWalkMinutes(e.target.value) : setGymMinutes(e.target.value)}
                   className="h-14 rounded-none border-2 border-jet text-2xl font-heading"
                   min="0"
                   step="1"
